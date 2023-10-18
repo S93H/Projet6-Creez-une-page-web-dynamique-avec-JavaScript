@@ -147,6 +147,12 @@ li:hover {
 #portfolio .filtres:hover {
 	background-color: #1D6154;
 	color: white;
+	
+}
+
+#portfolio .filtres.active-filter {
+	background-color: #1D6154;
+	color: white;
 }
 /*----------------------------------------------------*/
 .gallery {
@@ -269,9 +275,6 @@ header {
 }
 
 .edit-button {
-	/* position: absolute;
-	top: 63.3%;
-	right: 40%; */
 	cursor: pointer;
 	margin-left: 710px;
 	margin-top: -50px;
@@ -418,6 +421,7 @@ header {
 	flex-direction: column;
 	align-items: center;
 	padding: 30px;
+	position: relative;
 }
 
 .addImage {
@@ -426,9 +430,15 @@ header {
 	margin-bottom: 20px;
 }
 
+.imgPreview {
+	position: absolute;
+	height: 100%;
+	top: 0;
+}
+
 .buttonAddPhoto {
 	position: absolute;
-	top: 27%;
+	top: 52%;
 	left: 33%;
 	padding: 3% 8%;
 	/* border: none; */
@@ -455,8 +465,6 @@ header {
 .formAjoutPhoto {
 	display: flex;
 	flex-direction: column;
-	/*justify-content: center;*/
-
 }
 
 .inputAjoutPhoto {

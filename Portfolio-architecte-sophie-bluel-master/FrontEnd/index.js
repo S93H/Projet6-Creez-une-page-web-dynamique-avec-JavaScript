@@ -7,17 +7,17 @@ let modalProjets;
 
 
 
-// Recherchez tous les éléments <li> dans la liste de navigation
+// Je recherche tous les éléments <li> dans la liste de navigation
 const menuItems = document.querySelectorAll('nav ul li');
 
 
-// Parcourez les éléments <li> pour trouver celui avec le texte "login"
+// Je parcours les éléments <li> pour trouver celui avec le texte "login"
 menuItems.forEach(item => {
     if (item.textContent.toLowerCase() === "login") {
         item.setAttribute('style', 'cursor:pointer;');
-        // Ajoutez un gestionnaire d'événements de clic pour la redirection
+        // J'ajoute un gestionnaire d'événements de clic pour la redirection
         item.addEventListener('click', () => {
-            // Redirigez l'utilisateur vers la page "login.js"
+            // Je redirige l'utilisateur vers la page "login.js"
             window.location.href = 'login.html';
         });
     }
@@ -26,7 +26,9 @@ menuItems.forEach(item => {
 
 
 
-// Fonction pour récupérer les filtres depuis l'API et les afficher
+//---------------------------- FONCTION POUR RÉCUPÉRER LES FILTRES DEPUIS L'API ET LES AFFICHER ------------------------------//
+
+
 async function recupererFiltres(projets) {
     try {
         const response = await fetch('http://localhost:5678/api/categories');
@@ -38,28 +40,48 @@ async function recupererFiltres(projets) {
         document.getElementById('portfolio').insertBefore(divFiltres, document.querySelector('.gallery'));
 
         // Je crée le filtre "Tous" en premier car il n'est pas présent dans l'api
+
         const filterAll = document.createElement('div');
         filterAll.classList.add('filtres');
+        filterAll.classList.add('active-filter');
         filterAll.innerText = 'Tous';
         filterAll.addEventListener('click', () => {
-            // J' affiche tous les projets
+
+            // J' affiche tous les projets grâce à la fonction genererProjets
+
             document.querySelector('.gallery').innerHTML = '';
             genererProjets(projets);
+
+            filters.forEach(filter => filter.classList.remove('active-filter'));
+
+            filterAll.classList.add('active-filter');
         });
         divFiltres.appendChild(filterAll);
 
+        const filters = [];
+
         // Je crée les filtres pour chaque catégorie
+
         categories.forEach(category => {
             const filter = document.createElement('div');
             filter.classList.add('filtres');
             filter.innerText = category.name;
             filter.addEventListener('click', () => {
+                filters.forEach(filter => filter.classList.remove('active-filter'));
+                filter.classList.add('active-filter');
+                filterAll.classList.remove('active-filter');
+
                 // Je filtre les projets par catégorie et j'affiche les résultats
+
                 const filteredProjects = projets.filter(projet => projet.categoryId === category.id);
                 document.querySelector('.gallery').innerHTML = '';
                 genererProjets(filteredProjects);
+
+
+
             });
             divFiltres.appendChild(filter);
+            filters.push(filter);
         });
     } catch (error) {
         console.error('Une erreur s\'est produite lors de la récupération des catégories :', error);
@@ -68,12 +90,14 @@ async function recupererFiltres(projets) {
 
 
 
-// Fonction pour générer les projets
+//--------------------- FONCTION POUR GÉNÉRER LES PROJETS----------------------//
+
+
 function genererProjets(projets) {
     projets.forEach(projet => {
         // Je crée la balise dédiée à un projet
         const projetElement = document.createElement("figure");
-        // Je crée l’élément img.
+        // Je crée un élément img.
         const imageElement = document.createElement("img");
         // J'accède à la propriété imageUrl de l'objet projet pour configurer la source de l’image.
         imageElement.src = projet.imageUrl;
@@ -81,7 +105,7 @@ function genererProjets(projets) {
         const titleProjet = document.createElement("figcaption");
         // J'accède à la propriété title de l'objet projet pour configurer le contenu du figcaption.
         titleProjet.innerText = projet.title;
-        // Je rattache l’image à projetElement
+        // Je rattache l’image et le titre à projetElement  donc (balise figure)
         projetElement.appendChild(imageElement);
         projetElement.appendChild(titleProjet);
 
@@ -94,16 +118,18 @@ function genererProjets(projets) {
 
 
 
-// Fonction pour récupérer les projets depuis l'API
+//----------------------------- FONCTION POUR RÉCUPÉRER LES PROJETS DEPUIS L'API -------------------------//
+
+
 async function recuperationProjets() {
     try {
         const response = await fetch('http://localhost:5678/api/works');
         const projets = await response.json();
-         // Je supprime les filtres existants si ils existent
-         const divFiltres = document.querySelector('.divFiltres');
-         if (divFiltres) {
-             divFiltres.remove();
-         }
+        // Je supprime les filtres existants si ils existent
+        const divFiltres = document.querySelector('.divFiltres');
+        if (divFiltres) {
+            divFiltres.remove();
+        }
         // J'appelle la fonction genererProjets() pour afficher les projets
         genererProjets(projets);
         // J'appelle la fonction recupererFiltres() pour récupérer, afficher les filtres
@@ -118,84 +144,36 @@ recuperationProjets();
 
 
 
-// function actualiserListeProjets() {
-//     fetch(`http://localhost:5678/api/works`)
-//         .then(response => response.json())
-//         .then(projets => {
-//             const modalProjets = document.querySelector('.modalProjets');
-//             modalProjets.innerHTML = '';
-
-//             projets.forEach(projet => {
-//                 const projetElement = document.createElement('div');
-//                 projetElement.classList.add('projetElement');
-
-//                 // REMPLACER LE PROJETELEMENT.INNERHTML PAR DES CREATEELEMENT //
-//                 const divElement = document.createElement('div');
-//                 divElement.classList.add('projet-image');
-
-//                 const imgp = document.createElement('img');
-//                 imgp.classList.add('imgp');
-//                 imgp.src = projet.imageUrl;
-//                 imgp.alt = projet.title;
-
-//                 const imgPoubelle = document.createElement('img');
-//                 imgPoubelle.classList.add('img-trash');
-//                 imgPoubelle.src = "./assets/icons/trash-can.png";
-//                 imgPoubelle.setAttribute("data-projet-id", projet.id);
-
-//                 projetElement.appendChild(divElement);
-//                 divElement.appendChild(imgp);
-//                 divElement.appendChild(imgPoubelle);
+//----------------------------------- FONCTION POUR SUPPRIMER LES PROJETS ----------------------------//
 
 
-
-
-
-
-
-//                 // nouveauxProjets.forEach(projet => {
-//                 //     const projetElement = document.createElement('div');
-//                 //     projetElement.classList.add('projetElement');
-//                 //     projetElement.innerHTML = `
-//                 //     <div class="projet-image">
-//                 //     <img src="${projet.imageUrl}" alt="${projet.title}" class="imgp"/>
-//                 //     <img src="./assets/icons/trash-can.png" class="img-trash" data-projet-id="${projet.id}"/>
-//                 // </div>
-//                 //     `;
-//                 //     modalProjets.appendChild(projetElement);
-//             });
-//         })
-//         .catch(error => {
-//             console.error('Une erreur s\'est produite lors de la mise à jour de la liste des projets :', error);
-//         });
-// }
 
 function supprimerProjet(projetId) {
     const token = sessionStorage.getItem('authToken');
-    
+
     fetch(`http://localhost:5678/api/works/${projetId}`, {
         method: 'DELETE',
         headers: {
             'Authorization': `Bearer ${token}`,
         },
     })
-    .then(response => {
-        if (response.ok) {
-            actualiserListeProjets();
-            gallery.innerHTML = "";
-            recuperationProjets();
-            
-        } else {
-            console.error('Erreur lors de la suppression du projet :', response.status);
-        }
-    })
-    .catch(error => {
-        console.error('Une erreur s\'est produite lors de la suppression du projet :', error);
-    });
+        .then(response => {
+            if (response.ok) {
+                actualiserListeProjets();
+                gallery.innerHTML = "";
+                recuperationProjets();
+
+            } else {
+                console.error('Erreur lors de la suppression du projet :', response.status);
+            }
+        })
+        .catch(error => {
+            console.error('Une erreur s\'est produite lors de la suppression du projet :', error);
+        });
 }
 
 
-
+//--------------------------------- FONCTION POUR ACTULISER LA LISTE DES PROJETS -----------------------------------//
 
 function actualiserListeProjets() {
     fetch(`http://localhost:5678/api/works`)
@@ -224,12 +202,12 @@ function actualiserListeProjets() {
 
 
 
-                 // Ajout d'un gestionnaire d'événements pour la suppression du projet
-                 imgPoubelle.addEventListener('click', () => {
+                // Ajout d'un gestionnaire d'événements pour la suppression du projet
+                imgPoubelle.addEventListener('click', () => {
                     const projetId = projet.id;
                     // Appel de la fonction de suppression du projet
                     supprimerProjet(projetId);
-                    
+
                 });
 
 
@@ -270,6 +248,17 @@ document.addEventListener('DOMContentLoaded', () => {
         modeEdition.innerHTML = '<img src="./assets/icons/whiteEdit.png"> Mode édition';
         bandeau.appendChild(modeEdition);
 
+        // Je récupére tous les éléments <li> dans la liste de navigation
+        const listItems = document.querySelectorAll('nav ul li');
+
+        // Je parcour les éléments et trouve celui avec le texte "login"
+        listItems.forEach((item) => {
+            if (item.textContent.trim().toLowerCase() === 'login') {
+                // Je change le texte en "logout"
+                item.textContent = 'logout';
+            }
+        });
+
         // L'utilisateur est connecté, j'ajoute le bouton de modification
         // Je crée la div de modification
         const editDiv = document.createElement('div');
@@ -287,7 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         editDiv.addEventListener('click', () => {
-            // console.log('click sur modifier');
+
             // Je Crée les éléments de la modale
             const fond = document.createElement('div');
             const modal = document.createElement('div');
@@ -306,18 +295,13 @@ document.addEventListener('DOMContentLoaded', () => {
             fond.classList.add('fond');
             modal.classList.add('modal');
 
-            // const modalContent = document.createElement('div');
-            // modalContent.classList.add('modal-content');
 
             const closeButton = document.createElement('div');
             closeButton.classList.add('close-modal');
             closeButton.innerHTML = '<img src="./assets/icons/xmark.png">'
 
             // J'ajoute les éléments de la modale au DOM
-            // fond.appendChild(modal);
-            // modalContent.appendChild(closeButton);
-            // modalContent.appendChild(modalProjetsH3)
-            // modal.appendChild(modalContent);
+
             modal.appendChild(closeButton);
             modal.appendChild(modalProjetsH3)
             modal.appendChild(modalProjets)
@@ -332,107 +316,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 .then(response => response.json())
                 .then(projets => {
                     modalProjets.innerHTML = "";
-                    projets.forEach(projet => {
-                        // J'utilise la fonction actualiserListeProjets pour générer les projets
+                    
+                        // J'utilise la fonction actualiserListeProjets pour re-générer les projets
                         actualiserListeProjets();
-                    });
+                   
 
-                    // projets.forEach(projet => {
-                    //     const projetElement = document.createElement('div');
-                    //     projetElement.classList.add('projetElement');
-
-                    //     // REMPLACER LE PROJETELEMENT.INNERHTML PAR DES CREATEELEMENT //
-                    //     const divElement = document.createElement('div');
-                    //     divElement.classList.add('projet-image');
-
-                    //     const imgp = document.createElement('img');
-                    //     imgp.classList.add('imgp');
-                    //     imgp.src = projet.imageUrl;
-                    //     imgp.alt = projet.title;
-
-                    //     const imgPoubelle = document.createElement('img');
-                    //     imgPoubelle.classList.add('img-trash');
-                    //     imgPoubelle.src = "./assets/icons/trash-can.png";
-                    //     imgPoubelle.setAttribute("data-projet-id",projet.id);
-
-                    //     projetElement.appendChild(divElement);
-                    //     divElement.appendChild(imgp);
-                    //     divElement.appendChild(imgPoubelle);
-
-
-
-                    //     projetElement.innerHTML = `
-                    // <div class="projet-image">
-                    //     <img src="${projet.imageUrl}" alt="${projet.title}" class="imgp"/>
-                    //     <img src="./assets/icons/trash-can.png" class="img-trash" data-projet-id="${projet.id}"/>
-                    // </div>
-                    // `;
-                    // modalProjets.appendChild(projetElement);
-
-
-                    // METTRE LA PARTIE SUPPRIMER UN PROJET ICI //
-
-                    /*------------------------------ SUPPRIMER PROJET -------------------------------------*/
-
-
-                    // const imgTrash = document.querySelectorAll('.img-trash');
-                    // // console.log(imgTrash);
-
-                    // imgTrash.forEach(trash => {
-                    // const imgPoubelle = document.querySelectorAll('.img-trash');
-                    // imgPoubelle.forEach(imgPoubelle => {
-                    //     imgPoubelle.addEventListener('click', (event) => {
-                    //         console.log('test');
-                    //         event.preventDefault();
-                    //         const projetId = event.target.getAttribute('data-projet-id');
-
-                    //         console.log(projetId);
-
-                    //         fetch(`http://localhost:5678/api/works/${projetId}`, {
-                    //             method: 'DELETE',
-                    //             headers: {
-                    //                 'Authorization': `Bearer ${token}`,
-                    //             },
-                    //         })
-                    //             // .then(response => response.json())
-                    //             .then(result => {
-                    //                 fetch('http://localhost:5678/api/works')
-                    //                     .then(response => response.json())
-                    //                     .then(projets => {
-
-                    //                         // Après la suppression réussie du projet, je supprime l'élément HTML correspondant.
-                    //                         const projetElement = imgPoubelle.closest('.projetElement');
-                    //                         projetElement.remove();
-                    //                         actualiserListeProjets();
-                    //                         document.querySelector('.gallery').innerHTML = "";
-                    //                         genererProjets(projets);
-                    //                         // modalProjets.innerHTML = "";
-
-                    //                         // projets.forEach(projet => {
-                    //                         //     const projetElement = document.createElement('div');
-                    //                         //     projetElement.classList.add('projetElement');
-                    //                         //     projetElement.innerHTML = `
-                    //                         //         <div class="projet-image">
-                    //                         //             <img src="${projet.imageUrl}" alt="${projet.title}" class="imgp"/>
-                    //                         //             <img src="./assets/icons/trash-can.png" class="img-trash"/>
-                    //                         //         </div>
-                    //                         //     `;
-                    //                         //     modalProjets.appendChild(projetElement);
-                    //                         // });
-                    //                     })
-                    //                     .catch(error => {
-                    //                         console.error('Une erreur s\'est produite lors de la mise à jour de la liste des projets :', error);
-                    //                     });
-                    //             })
-                    //             .catch(error => {
-                    //                 console.error('Une erreur s\'est produite lors de la suppression du projet :', error);
-                    //             });
-                    //     });
-                    // })
-
-                    // });
-
-                    // })
                 })
 
             /*------------------------------------- MODAL FORMULAIRE -----------------------------------*/
@@ -452,6 +340,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </label>
                 <input type="file" id="imgFile" name="image" accept="image/*" class="inputAjout" style="display: none;">
                 <p>jpg.png : 4mo max</p>
+                <img class="imgPreview" src=""/>
             </div>
             
                     <div class="formAjoutPhoto">
@@ -479,6 +368,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // J'ajoute un gestionnaire d'événements pour la flèche de retour
                 arrow.addEventListener('click', () => {
                     // Je masque le formulaire d'ajout de projet
+
                     formulaire.style.display = 'none';
                     // Je réaffichie la liste des projets avec les icônes de poubelles
                     fetch(`http://localhost:5678/api/works`)
@@ -489,15 +379,13 @@ document.addEventListener('DOMContentLoaded', () => {
                             projets.forEach(projet => {
                                 const projetElement = document.createElement('div');
                                 projetElement.classList.add('projetElement');
-
-                                // REMPLACER LE PROJETELEMENT.INNERHTML PAR DES CREATEELEMENT //
-
                                 projetElement.innerHTML = `
                 <div class="projet-image">
                     <img src="${projet.imageUrl}" alt="${projet.title}" class="imgp"/>
                     <img src="./assets/icons/trash-can.png" class="img-trash" data-projet-id="${projet.id}"/>
                 </div>
             `;
+                                arrow.style.display = 'none';
                                 modalProjets.appendChild(projetElement);
                             });
                         });
@@ -532,41 +420,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-                 // Je sélectionne l'input de type file et le label correspondant
+                // Je sélectionne l'input de type file et le label correspondant
                 const imgFileInput = document.getElementById('imgFile');
                 const addImageLabel = document.querySelector('.addImage');
                 let isAddingImage = false;
 
+                
 
                 // J'ajoute un écouteur d'événement pour le clic sur le label
                 addImageLabel.addEventListener('click', () => {
                     if (!isAddingImage) {
                         isAddingImage = true;
-                       
+
                         // Je clique sur l'input de type file pour ouvrir la boîte de dialogue de sélection de fichier
-                    imgFileInput.click();
+                        imgFileInput.click();
                     }
-                    
+
                 });
 
                 // J'ajoute un écouteur d'événement pour le changement de l'input de type file
                 imgFileInput.addEventListener('change', (event) => {
-                isAddingImage = false;
+                    isAddingImage = false;
                     const selectedFile = event.target.files[0];
+                    const imgPreview = document.querySelector('.imgPreview');
+
                     if (selectedFile) {
-                        // Je met à jour le texte du label avec le nom du fichier sélectionné
-                        addImageLabel.querySelector('span').textContent = selectedFile.name;
+                        // Je crée un objet URL pour l'image sélectionnée
+                        const imageUrl = URL.createObjectURL(selectedFile);
+                        imgPreview.src = imageUrl;
+                        document.querySelector('.buttonAddPhoto').style.display= 'none';
                     }
                 });
 
-                
-
-                // console.log(token);
 
 
 
 
-                /*--------------------------- AJOUT PROJET -------------------------------------------*/
+
+                /*------------------------------------AJOUT PROJET -------------------------------------------*/
 
 
 
@@ -574,7 +465,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     event.preventDefault();
 
-                    // Je récupére les valeurs des champs
+                    // Je récupére les valeurs des champs title , catégorie et image
                     const imgTitle = document.getElementById('imgTitle').value;
                     const imgCategory = document.getElementById('imgCategory').value;
                     const imgFile = imgFileInput.files[0];
@@ -604,8 +495,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
 
 
-                    // const formData = new FormData(formulaire);
-
                     // Je crée un objet FormData pour envoyer les données
                     const formData = new FormData();
                     formData.append('image', imgFile);
@@ -613,9 +502,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     formData.append('category', imgCategory);
 
 
-                    // console.log(imgTitle);
-                    // console.log(imgCategory);
-                    // console.log(imgFile);
 
                     try {
                         const response = await fetch('http://localhost:5678/api/works', {
@@ -628,18 +514,17 @@ document.addEventListener('DOMContentLoaded', () => {
                         })
 
                         if (response.ok) {
-                            fetch('http://localhost:5678/api/works')
-                                .then(response => response.json())
-                                .then(projets => {
+                            
                                     document.querySelector('.gallery').innerHTML = "";
                                     // Le projet a été ajouté avec succès, j'actualise la liste des projets
                                     actualiserListeProjets();
                                     recuperationProjets();
 
-                                    // Je ferme la modale
-                                    // fond.style.display = 'none';
-                                    // modal.style.display = 'none';
-                                })
+
+
+                                    arrow.style.display = 'none';
+
+                    
 
                         } else {
                             console.error('Erreur lors de l\'ajout du projet:', response.status);
